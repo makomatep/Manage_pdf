@@ -1,0 +1,1353 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        "Atalasoft.dotImage.PdfReader"
+    </assembly>
+    <members>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextDocument.DisposePages(System.Boolean)">
+            <summary>
+Disposes all pages in a cache.
+</summary>
+            <param name="disposing">True to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextDocument.MakePages">
+            <summary>
+Initializes a pages cache.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextDocument.ExtractionGranularity">
+            <inheritdoc />
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextDocument.GetTextPage(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextDocument.GetPdfTextReader(System.Int32,System.Int32)">
+            <summary>
+Creates a new <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextReader" /> for specified pages range.
+</summary>
+            <param name="startPage">page index from what range should begin.</param>
+            <param name="endPage">page index where range should end.</param>
+            <returns>
+A created <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextReader" />.
+</returns>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextDocument.GetPdfTextReader(System.Int32)">
+            <summary>
+Creates a new <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextReader" /> for specified page.
+</summary>
+            <param name="page">page index.</param>
+            <returns>
+A created <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextReader" />.
+</returns>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextDocument.GetPdfTextReader">
+            <summary>
+Creates a new <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextReader" /> for all pages in document.
+</summary>
+            <returns>
+A created <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextReader" />.
+</returns>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextDocument.GetPage(System.Int32)">
+            <summary>
+Retrieves a <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextPage" /> from document.
+</summary>
+            <remarks>
+                <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextDocument" /> stores all retrieved pages in its own cache which clears
+only when all document disposing.
+</remarks>
+            <returns>
+A created or cached <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextPage" />.
+</returns>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextDocument.OutputPageEnd">
+            <summary>
+Gets or sets a flag indicating whether a page end symbol should returned by <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextReader" />.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextDocument.OutputLineEnd">
+            <summary>
+Gets or sets a flag indicating whether line end symbols should returned by <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextReader" />.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextDocument.PageCount">
+            <inheritdoc />
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextDocument.#ctor(System.String,System.String)">
+            <summary>
+Initalizes a new instance of the <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextDocument" /> class.
+</summary>
+            <param name="filename">a filepath to the PDF document.</param>
+            <param name="password">Password to open PDFdocument.</param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextDocument.#ctor(System.String)">
+            <summary>
+Initalizes a new instance of the <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextDocument" /> class.
+</summary>
+            <param name="filename">a filepath to the PDF document.</param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextDocument.#ctor(System.IO.Stream)">
+            <summary>
+Initalizes a new instance of the <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextDocument" /> class.
+</summary>
+            <param name="s">
+                <see cref="T:System.IO.Stream" /> where PDF document store.</param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextDocument.#ctor(System.IO.Stream,System.String)">
+            <summary>
+Initalizes a new instance of the <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextDocument" /> class.
+</summary>
+            <param name="s">
+                <see cref="T:System.IO.Stream" /> where PDF document store.</param>
+            <param name="password">Password to open PDF document.</param>
+        </member>
+        <member name="T:Atalasoft.Pdf.TextExtract.PdfTextDocument">
+            <summary>
+Represents a PDF document for text processing operations.
+</summary>
+            <example>
+                <code lang="CS" title="Extracting Text from a PDF (C#)"><![CDATA[
+using Atalasoft.Pdf.TextExtract;
+using System.Drawing;
+using System.IO;
+
+// some examples of using the classes in the
+// Atalasoft.Pdf.TextExtract namespace
+
+// get the number of pages in a PDF
+public int GetPageCount(Stream s)
+{
+    using (PdfTextDocument doc = new PdfTextDocument(s)) 
+    {
+        return doc.PageCount;
+    }
+}
+
+// get the number of characters on a page in a PDF
+public int GetCharCount(Stream s, int pageNum)
+{
+    using (PdfTextDocument doc = new PdfTextDocument(s)) 
+    {
+        PdfTextPage textPage = doc.GetPage(pageNum);                    
+        return textPage.CharCount;
+    }
+}
+
+// Extract Text from a PDF
+public String GetText(Stream s, int pageNum, int index, int count)
+{
+    using (PdfTextDocument doc = new PdfTextDocument(s)) 
+    {
+        PdfTextPage textPage = doc.GetPage(pageNum);                    
+        return textPage.GetText(index, count);
+    }
+}
+
+// Find out where a character is in a PDF
+public PointF GetCharPos(Stream s, int pageNum, int index)
+{
+    using (PdfTextDocument doc = new PdfTextDocument(s)) 
+    {
+        PdfTextPage textPage = doc.GetPage(pageNum);                    
+        return textPage.CharOrigin(index);
+    }
+}
+]]></code>
+                <code lang="VB" title="Extracting Text from a PDF (Visual Basic)"><![CDATA[
+Imports System.Drawing
+Imports System.IO
+Imports Atalasoft.Pdf.TextExtract
+
+' some examples of using the classes In the
+' Atalasoft.Pdf.TextExtract Namespace
+
+
+' get the number of pages in a PDF
+Public Function GetPageCount(ByVal s As Stream) As Integer
+    Using doc As New PdfTextDocument(s)
+        Return doc.PageCount
+    End Using
+End Function
+
+' get the number of characters on a page in a PDF
+Public Function GetCharCount(ByVal s As Stream, ByVal pageNum As Integer) As Integer
+    Using doc As New PdfTextDocument(s)
+        Dim textPage As PdfTextPage = doc.GetPage(pageNum)
+        Return textPage.CharCount
+    End Using
+End Function
+
+' Extract Text from a PDF
+Public Function GetText(ByVal s As Stream, ByVal pageNum As Integer, ByVal index As Integer, ByVal count As Integer) As String
+    Using doc As New PdfTextDocument(s)
+        Dim textPage As PdfTextPage = doc.GetPage(pageNum)
+        Return textPage.GetText(index, count)
+    End Using
+End Function
+
+' Find out where a character is in a PDF
+Public Function GetCharPos(ByVal s As Stream, ByVal pageNum As Integer, ByVal index As Integer) As PointF
+    Using doc As New PdfTextDocument(s)
+        Dim textPage As PdfTextPage = doc.GetPage(pageNum)
+        Return textPage.CharOrigin(index)
+    End Using
+End Function
+]]></code>
+            </example>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextReader.ReadLine">
+            <inheritdoc />
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextReader.Read">
+            <inheritdoc cref="M:System.IO.TextReader.Read" />
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextReader.Read(System.Char[],System.Int32,System.Int32)">
+            <summary>
+Reads a specified maximum number of characters from the current reader and writes the data to a buffer, beginning at the specified index.
+</summary>
+            <param name="buffer">
+When this method returns, contains the specified character array with the values between <paramref name="index" />
+and (<paramref name="index" /> + <paramref name="count" /> - 1) replaced by the characters read from the current source.
+</param>
+            <param name="index">
+The position in <paramref name="buffer" /> at which to begin writing.
+</param>
+            <param name="count">
+The maximum number of characters to read.
+If the end of the reader is reached before the specified number of characters is read into the <paramref name="buffer" />, the method returns.
+</param>
+            <returns>
+The number of characters that have been read. The number will be less than or equal to <paramref name="count" />, depending on whether
+the data is available within the reader. This method returns 0 (zero) if it is called when no more characters are left to read.
+</returns>
+            <exception cref="T:System.ArgumentNullException">Throws when <paramref name="buffer" /> is a <see langword="null" />.</exception>
+            <exception cref="T:System.ArgumentException">Throws when the <paramref name="buffer" /> length minus <paramref name="index" /> is less than <paramref name="count" />.</exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">Throws when <paramref name="index" /> or <paramref name="count" /> is negative.</exception>
+            <exception cref="T:System.ObjectDisposedException">Throws when the <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextReader" /> is closed.</exception>
+            <exception cref="T:System.IO.IOException">Throws when an I/O error occurs.</exception>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextReader.Peek">
+            <inheritdoc />
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextReader.OutputPageEnd">
+            <summary>
+Gets or sets a flag indicating whether <see cref="M:Atalasoft.Pdf.TextExtract.PdfTextReader.Read(System.Char[],System.Int32,System.Int32)" /> and <see cref="M:Atalasoft.Pdf.TextExtract.PdfTextReader.Peek" /> methods should return page end symbol.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextReader.OutputLineEnd">
+            <summary>
+Gets or sets a flag indicating whether <see cref="M:Atalasoft.Pdf.TextExtract.PdfTextReader.Read(System.Char[],System.Int32,System.Int32)" /> and <see cref="M:Atalasoft.Pdf.TextExtract.PdfTextReader.Peek" /> methods should return line end symbols.
+</summary>
+        </member>
+        <member name="T:Atalasoft.Pdf.TextExtract.PdfTextReader">
+            <summary>
+Represents a <see cref="T:System.IO.TextReader" /> implementation for PDF documents.
+</summary>
+            <example>
+                <code lang="CS" title="Using a PdfTextReader (C#)"><![CDATA[
+public String ReadTextFromPages(Stream s, int pageStart, int pageEnd)
+{
+    using (PdfTextDocument doc = new PdfTextDocument(s))
+    {
+        PdfTextReader rdr = doc.GetPdfTextReader(pageStart, pageEnd);
+        return rdr.ReadToEnd();
+    }
+}
+]]></code>
+                <code lang="VB" title="Using a PdfTextReader (Visual Basic)"><![CDATA[
+Public Function ReadTextFromPages(ByVal s As Stream, ByVal pageStart As Integer, ByVal pageEnd As Integer) As String
+    Using doc As New PdfTextDocument(s)
+        Dim rdr As PdfTextReader = doc.GetPdfTextReader(pageStart, pageEnd)
+        Return rdr.ReadToEnd()
+    End Using
+End Function
+]]></code>
+            </example>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.WrongPasswordException.#ctor(System.String,System.Exception)">
+            <summary> Creates a WrongPasswordException with the given message and chains it to the given exception </summary>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.WrongPasswordException.#ctor(System.String)">
+            <summary> Creates a WrongPasswordException with the given message </summary>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.WrongPasswordException.#ctor">
+            <overloads> Create a WrongPasswordException </overloads>
+            <summary> Creates a WrongPasswordException </summary>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.WrongPasswordException">
+            <summary> This exception is thrown if a PDF is opened with the wrong password </summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfSearchResults.HasResults">
+            <summary>
+Gets a value indicating whether results of the search operation exist or not.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfSearchResults.CharCount">
+            <summary>
+Gets start number of characters that comprise current search result.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfSearchResults.StartIndex">
+            <summary>
+Gets start index of the current search result.
+</summary>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfSearchResults.FindPrevious">
+            <summary>
+Moves to the previous search result.
+</summary>
+            <returns>
+                <c>true</c> if there is previous search result exists; otherwise <c>false</c>.</returns>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfSearchResults.FindNext">
+            <summary>
+Moves to the next search result.
+</summary>
+            <returns>
+                <c>true</c> if next search result exists; otherwise <c>false</c>.</returns>
+        </member>
+        <member name="T:Atalasoft.Pdf.TextExtract.PdfSearchResults">
+            <summary>
+Defines result of a search operation.
+</summary>
+            <remarks>
+This class is similar to <see cref="T:System.Collections.IEnumerable" /> in a sense that
+you need to call <see cref="M:Atalasoft.Pdf.TextExtract.PdfSearchResults.FindNext" /> to get the first search result.
+In other words, right after the search operation, PdfSearchResuls instance
+is positioned <c>before</c> first search result.
+</remarks>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextFont.Descent">
+            <summary>
+The maximum depth below the baseline reached by glyphs in this font.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextFont.Ascent">
+            <summary>
+The maximum height above the baseline reached by glyphs in this font.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextFont.Name">
+            <summary>
+Gets a PostScript name of the font.
+</summary>
+        </member>
+        <member name="T:Atalasoft.Pdf.TextExtract.PdfTextFont">
+            <summary>
+Represents a PDF Font object.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextSegment.Count">
+            <summary>
+Gets a length of a segment.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextSegment.Index">
+            <summary>
+Gets a index in page char array where segment is started.
+</summary>
+        </member>
+        <member name="T:Atalasoft.Pdf.TextExtract.PdfTextSegment">
+            <summary>
+Represents a text segment of PDF page.
+</summary>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.ThrowWhenBadSearchIndex(System.Int32)">
+            <summary>
+A helper method to check that index is in available range.
+</summary>
+            <param name="index">Page char index.</param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.ThrowWhenBadIndex(System.Int32)">
+            <summary>
+A helper method to check that index is in available range.
+</summary>
+            <param name="index">Page char index.</param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.ThrowWhenDisposed">
+            <summary>
+A helper method to check for object disposed state.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextPage.TextPage">
+            <summary>
+Gets a native pointer to PDF text page
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextPage.PdfPage">
+            <summary>
+Gets a native pointer to PDF page
+</summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextPage.CropBox">
+            <summary>
+Get a PDF page CropBox.
+</summary>
+            <remarks>
+A rectangle, expressed in default user space units, that shall define the visible region of default user space.
+When the page is displayed or printed, its contents shall be clipped(cropped) to this rectangle and then shall
+be imposed on the output medium in some implementation - defined manner.
+Default value : the value of <see cref="P:Atalasoft.Pdf.TextExtract.PdfTextPage.MediaBox" />.
+</remarks>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextPage.MediaBox">
+            <summary>
+Get a PDF page MediaBox.
+</summary>
+            <remarks>A rectangle, expressed in default user space units, that shall define the boundaries of the physical medium
+on which the page shall be displayed or printed.</remarks>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.ConvertPixelsToPdfUnits(Atalasoft.Utils.Geometry.QuadrilateralF,Atalasoft.Imaging.Dpi)">
+            <summary> Converts a quadrilateral given in pixels to the corresponding location in PDF User space units at the
+given resolution. </summary>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.ConvertPixelsToPdfUnits(System.Drawing.PointF,Atalasoft.Imaging.Dpi)">
+            <overloads> Converts objects given in pixels to the corresponding location in PDF User space units at the given
+resolution. </overloads>
+            <remarks>
+                <para>In a PDF, the origin is at the bottom-left of a page, and a Y length is positive when starting at
+the bottom and going towards the top of the page.  In pixels, the origin is at the top-left of the image and a Y
+length is positive when starting at the top of the image and going towards the bottom of the image.</para>
+                <para />
+            </remarks>
+            <summary> Converts a point given in pixels to the corresponding location in PDF User space units at the given
+resolution. </summary>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.ConvertPdfUnitsToPixels(Atalasoft.Utils.Geometry.QuadrilateralF,Atalasoft.Imaging.Dpi)">
+            <summary> Converts a quadrilateral given in PDF User space units to the corresponding pixel location at the given
+resolution. </summary>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.ConvertPdfUnitsToPixels(System.Drawing.PointF,Atalasoft.Imaging.Dpi)">
+            <overloads> Converts objects given in PDF User space units to the corresponding pixel location at the given
+resolution. </overloads>
+            <remarks>
+                <para>In a PDF, the origin is at the bottom-left of a page, and a Y length is positive when starting at
+the bottom and going towards the top of the page.  In pixels, the origin is at the top-left of the image and a Y
+length is positive when starting at the top of the image and going towards the bottom of the image.</para>
+            </remarks>
+            <summary> Converts a point given in PDF User space units to the corresponding pixel location at the given
+resolution. </summary>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.Search(System.Int32,System.String,System.Boolean,System.Boolean)">
+            <summary> Begins the text search process. </summary>
+            <returns> A PdfSearchResults object which represents the results of the search. </returns>
+            <param name="index">
+                <para>Zero-based index of the character in terms of this page.</para>
+                <para>-1 starts the search at the end of the page.</para>
+            </param>
+            <param name="text"> The text to search for. </param>
+            <param name="matchCase"> A flag to specify if search should match case. </param>
+            <param name="wholeWord"> A flag to specify if search should match whole words only. </param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.GetBoundedTextSegments(System.Drawing.RectangleF)">
+            <summary> Gets all of the text segments within a rectangular boundary on the page. </summary>
+            <returns> An array of <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextSegment" /> objects. </returns>
+            <param name="box"> A RectangleF which describes the area from which to get the text segments. </param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.GetFont(System.Int32)">
+            <summary> Gets a <see cref="T:Atalasoft.Pdf.TextExtract.PdfTextFont" /> object containing the font information for the specified character.
+</summary>
+            <returns> A PdfTextFont object which describes the PDF font of the specified character. </returns>
+            <param name="index"> Zero-based index of the character in terms of this page. </param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.GetFontSize(System.Int32)">
+            <summary> Gets the font size of the specified character. </summary>
+            <returns> The size of the PDF font at the given index. </returns>
+            <param name="index"> Zero-based index of the character in terms of this page. </param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.GetBoxes(System.Int32,System.Int32)">
+            <summary> Given an character index and a number of characters returns a bounding box for the specified text.
+</summary>
+            <returns> A QuadrilateralF array which describes a bounding box around the specified text. </returns>
+            <param name="index"> Zero-based index of the character in terms of this page. </param>
+            <param name="count"> The number of characters after the index to build the bounding box around. </param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.GetTextInBox(System.Drawing.RectangleF)">
+            <summary> Extract text within a rectangular boundary on the page. </summary>
+            <returns> A string containing the specified characters. </returns>
+            <param name="box"> A RectangleF specifying the region from which text will be extracted. </param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.GetText(System.Int32,System.Int32)">
+            <summary> Extracts a text string from the page. </summary>
+            <returns> A string containing the specified range of characters. </returns>
+            <param name="index"> Zero-based index of the character in terms of this page.</param>
+            <param name="count"> The number of characters to get. </param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.GetIndexFromPoint(System.Drawing.PointF,System.Double,System.Double)">
+            <summary> Gets the index of a character at or nearby a given position on the page. </summary>
+            <returns>
+                <para>Returns the zero-based index of the character at, or nearby the given point.</para>
+                <para>If there is no character at or nearby the point, return value will be -1.</para>
+                <para>If an error occurs, -3 will be returned.</para>
+            </returns>
+            <param name="point"> A PointF representing a location in PDF "user space". </param>
+            <param name="xTolerance"> A point unit tolerance value for character hit detection for the X axis. </param>
+            <param name="yTolerance"> A point unit tolerance value for character hit detection for the Y axis. </param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.GetIndexFromPoint(System.Drawing.PointF,System.Double)">
+            <overloads>
+                <para>Gets the index of a character at or nearby a given position on the page.</para>
+            </overloads>
+            <summary> Gets the index of a character at or nearby a given position on the page.</summary>
+            <returns>
+                <para>Returns the zero-based index of the character at, or nearby the given point.</para>
+                <para>If there is no character at or nearby the point, return value will be -1.</para>
+                <para>If an error occurs, -3 will be returned.</para>
+            </returns>
+            <param name="point"> A PointF representing a location in PDF "user space". </param>
+            <param name="tolerance"> A point unit tolerance value for character hit detection for both the X and Y axis.
+</param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.CharBox(System.Int32)">
+            <summary> Gets the bounding box of a character at an index. </summary>
+            <returns> a QuadrilateralF which describes the bounding box of the character. </returns>
+            <param name="index"> Zero-based index of the character in terms of this page. </param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.CharOrigin(System.Int32)">
+            <summary> Get origin position of a particular character by index.</summary>
+            <returns>
+                <para>PointF describing the origin position of the indexed character.</para>
+                <para>X and Y positions are measured in terms of PDF "user space".</para>
+            </returns>
+            <param name="index"> Zero-based index of the character in terms of this page.</param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.CharIsGenerated(System.Int32)">
+            <summary> Indicates whether a character at an index is a generated character or actually exists in the
+PDF. </summary>
+            <returns> True if the character was generated, False if it exists inside the PDF. </returns>
+            <param name="index"> Zero-based index of the character in terms of this page.</param>
+        </member>
+        <member name="M:Atalasoft.Pdf.TextExtract.PdfTextPage.CharAt(System.Int32)">
+            <summary> Gets a character from this page by index. </summary>
+            <returns>
+                <para>The character at index.</para>
+                <para>If a character is not encoded in Unicode and it can't be converted to Unicode, the return value will be
+zero.</para>
+            </returns>
+            <param name="index">Zero-based index of the character in terms of this page.</param>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextPage.CharCount">
+            <summary> The number of characters in the page. </summary>
+            <remarks> Generated characters, like additional space characters, new line characters, are also
+counted.</remarks>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextPage.Rotate">
+            <summary>
+                <para>Gets the clockwise rotation in degrees that the viewer should apply to the page.</para>
+            </summary>
+            <remarks> If the page does not have an explicit viewer rotation set, 0 is returned. </remarks>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextPage.Height">
+            <summary> The height of the page in PDF "user space". </summary>
+        </member>
+        <member name="P:Atalasoft.Pdf.TextExtract.PdfTextPage.Width">
+            <summary> The width of the page in PDF "user space". </summary>
+        </member>
+        <member name="T:Atalasoft.Pdf.TextExtract.PdfTextPage">
+            <summary>
+The object representation of a page in a PDF document. Used for PDF text search and complex text extraction.
+</summary>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.GetTextDocument(System.IO.Stream)">
+            <summary>
+Creates the text document.
+</summary>
+            <param name="stream">The document stream.</param>
+            <returns>
+                <see cref="T:Atalasoft.Imaging.Text.ITextDocument" /> that allows text information extraction.
+</returns>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.RenderSettings">
+            <summary> Used to indicate how to render the PDF.  For example, whether to show Annotations and which ones to show.
+</summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.SmoothingMode">
+            <summary> Gets or sets a value specifying whether and how smoothing (antialiasing) is applied to lines, curves, and
+edges of filled areas and text. </summary>
+            <remarks> In contrast to GDI+, the smoothing mode does effect text. This follows from the fact that the PDF decoder
+draws text as bezier curves. </remarks>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.TileThreshold">
+            <summary> Gets or sets the threshold value in pixels. When the width or height of the expected image exceeds
+the threshold value, the image is rendered in parts (tiles) and merged into a single image.
+Default: 31000 pixels. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.Resolution">
+            <value> The resolution at which to render a PDF page. </value>
+            <summary> Gets or sets the resolution at which to render a PDF page. </summary>
+            <remarks> Note that in general rendering a PDF page will cause embedded images to be up- or down-sampled. To
+retrieve embedded images at their original sample rate, use the <see cref="M:Atalasoft.Imaging.Codec.Pdf.Page.ExtractImages" /> method. </remarks>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.Password">
+            <summary> The password for the PDF or null for no password </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.MAXRESOLUTION">
+            <summary> The maximum resolution that PDF's can be read at. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.MINRESOLUTION">
+            <summary> The minimum resolution that PDF's can be read at. </summary>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.ReadRegion(System.IO.Stream,System.Drawing.Rectangle,System.Int32,Atalasoft.Imaging.ProgressEventHandler)">
+            <summary> Reads a rectangle region from the PDF.  This uses memory proportional to the size of the region.
+</summary>
+            <returns> An image that is the size of the region passed in with only a portion of the PDF rendered to it.
+</returns>
+            <param name="stream"> A stream positioned to the beginning of a PDF </param>
+            <param name="region"> A rectangle region to render. </param>
+            <param name="frameIndex"> The page number of the PDF to render starting from zero </param>
+            <param name="progress"> A progress handler </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.Read(System.IO.Stream,System.Int32,Atalasoft.Imaging.ProgressEventHandler)">
+            <summary> Read a PDF document and return the given page as an AtalaImage. </summary>
+            <returns> AtalaImage containing the given page. </returns>
+            <param name="stream"> The stream that holds the PDF document. It is assumed that the stream
+position points is at the start of the PDF document. </param>
+            <param name="frameIndex"> The zero-based index of the page from which to return
+information. </param>
+            <param name="progress"> The progress delegate. Can be set to null (Nothing in Visual
+Basic).  </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.Read(System.IO.Stream,Atalasoft.Imaging.ProgressEventHandler)">
+            <overloads> Read a PDF document as an AtalaImage. </overloads>
+            <summary> Read a PDF document and return the first page as an AtalaImage. </summary>
+            <returns> AtalaImage containing the first page. </returns>
+            <param name="stream"> The stream that holds the PDF document. It is assumed that the stream
+position points is at the start of the PDF document. </param>
+            <param name="progress"> The progress delegate. Can be set to null (Nothing in Visual
+Basic). </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.GetImageInfo(System.IO.Stream,System.Int32)">
+            <remarks> To obtain the PDF specific information, the ImageInfo return value must be cast to a
+<STRONG>PdfImageInfo</STRONG>. </remarks>
+            <summary> Returns information about the given page of the PDF document. </summary>
+            <returns> An instance of a <see cref="T:Atalasoft.Imaging.Codec.Pdf.PdfImageInfo" />. </returns>
+            <param name="stream"> The Stream that holds the PDF document. It is assumed that the Stream
+position points is at the start of the PDF document. </param>
+            <param name="frameIndex"> The zero-based index of the page from which to return
+information. </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.GetImageInfo(System.IO.Stream)">
+            <overloads> Returns information about the PDF without decoding it. </overloads>
+            <remarks> To obtain the PDF specific information, the ImageInfo return value must be cast to a
+<STRONG>PdfImageInfo</STRONG>. </remarks>
+            <summary> Returns information about the first page of the PDF document. </summary>
+            <returns> An instance of a <see cref="T:Atalasoft.Imaging.Codec.Pdf.PdfImageInfo" />. </returns>
+            <param name="stream"> The Stream that holds the PDF document. It is assumed that the Stream
+position points is at the start of the PDF document. </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.GetFrameCount(System.IO.Stream)">
+            <summary> Returns the number of pages in a PDF document. </summary>
+            <returns> Number of pages. </returns>
+            <param name="stream"> The Stream that holds the PDF document. It is assumed that the Stream
+position points is at the start of the PDF document. </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.IsValidFormat(System.IO.Stream)">
+            <summary> Returns true if and only if the specified Stream contains a PDF document. </summary>
+            <returns> True if and only if the specified Stream contains a PDF document. </returns>
+            <param name="stream"> The Stream that holds the PDF document to verify. It is assumed that the stream position
+points is at the start of the PDF document. </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.Dispose">
+            <overloads> Releases all resources managed by this object. </overloads>
+            <summary> Releases all resources managed by this object. </summary>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.PdfDecoder.#ctor">
+            <overloads> Initializes a new instance of a <STRONG>PdfDecoder</STRONG>. </overloads>
+            <summary> Initializes a new instance of a <STRONG>PdfDecoder</STRONG>. </summary>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.PdfDecoder">
+            <remarks> 
+To support reading JPEG2000 and JBIG2 compressed PDF files, you must distribute the
+<EM>Atalasoft.dotImage.Jbig2.dll</EM> and <EM>Atalasoft.dotImage.Jpeg2000.dll</EM> alongside
+your Atalasoft.dotImage.PdfReader.dll.  However you are not required to distribute these dependencies if you do
+not wish to support JP2 or JBIG images within PDF files. 
+
+This decoder unpacks PDFium engine library in %TEMP% directory by default. To set custom location see the example section.
+</remarks>
+            <example>
+                <code lang="CS" title="[New Example] (C#)"><![CDATA[
+using Atalasoft.Imaging;
+using Atalasoft.Imaging.Codec;
+using Atalasoft.Imaging.Codec.Pdf;
+...
+PdfDecoder pdf = new PdfDecoder();
+pdf.Resolution = 150;
+RegisteredDecoders.Decoders.Add(pdf);
+Workspace myWorkspace = new Workspace();
+myWorkspace.Open("document.pdf");
+]]></code>
+                <code lang="VB" title="[New Example] (Visual Basic)"><![CDATA[
+Imports Atalasoft.Imaging
+Imports Atalasoft.Imaging.Codec
+Imports Atalasoft.Imaging.Codec.Pdf
+...
+Dim pdf As PdfDecoder = New PdfDecoder()
+pdf.Resolution = 150
+RegisteredDecoders.Decoders.Add(pdf)
+Dim myWorkspace As Workspace = New Workspace()
+myWorkspace.Open("document.pdf");
+]]></code>
+            </example>
+            <summary> A <see cref="T:Atalasoft.Imaging.Codec.MultiFramedImageDecoder" /> used to read PDF pages as images from a Stream. </summary>
+            <example>
+To configure Pdfium library location, you should add the next line to app.config file:
+<code>
+&lt;Atalasoft&gt;
+    &lt;PdfDecoder PdfiumLocation="C:\Folder\Subfolder\SubSubFolder"/&gt;
+    &lt;!-- Components sections --&gt;
+    ...
+&lt;/Atalasoft&gt;
+</code>
+
+You can also use a relaive path
+<code>
+&lt;Atalasoft&gt;
+    &lt;PdfDecoder PdfiumLocation="..\Another\Sub\Folder"/&gt;
+    &lt;!-- Components sections --&gt;
+    ...
+&lt;/Atalasoft&gt;
+</code></example>
+            <seealso cref="T:Atalasoft.Shared.AtalasoftConfigSection" />
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.PdfImageInfo.Title">
+            <value> The title of this document. </value>
+            <summary> Gets the title of this document. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.PdfImageInfo.Subject">
+            <value> The subject of this document. </value>
+            <summary> Gets the subject of this document. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.PdfImageInfo.Producer">
+            <value> The application or module that created this PDF document. </value>
+            <summary> Gets the application or module that created this PDF document. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.PdfImageInfo.Keywords">
+            <value> The keywords of this document. </value>
+            <summary> Gets the keywords of this document. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.PdfImageInfo.Creator">
+            <value> The application that created this document before it was converted to PDF. </value>
+            <summary> Gets the application that created this document before it was converted to PDF. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.PdfImageInfo.Author">
+            <value> The person who authored this document. </value>
+            <summary> Gets the person who authored this document. </summary>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.PdfImageInfo">
+            <summary> Includes information about an image that is created from a PDF page using the <see cref="T:Atalasoft.Imaging.Codec.Pdf.PdfDecoder" />.
+</summary>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.Document.#ctor(System.IO.Stream,System.String)">
+            <summary> Opens an existing password-protected document using a <STRONG>Stream</STRONG>. </summary>
+            <param name="stream"> A Stream containing a PDF Document </param>
+            <param name="password"> Password that is required to open this document. </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.Document.#ctor(System.IO.BinaryReader,System.String)">
+            <summary> Opens an existing password-protected document using a BinaryReader. </summary>
+            <!-- path resulted in empty nodelist -->
+            <param name="reader"> The reader from which the document is read. </param>
+            <param name="password"> Password that is required to open this document. </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.Document.#ctor(System.IO.Stream)">
+            <summary> Opens an existing document using a <STRONG>Stream</STRONG>. </summary>
+            <param name="stream"> A Stream containing a PDF Document </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.Document.#ctor(System.IO.BinaryReader)">
+            <summary> Opens an existing document using a BinaryReader. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+using ( FileStream file = new FileStream( path, FileMode.Open, FileAccess.Read ) )
+{
+   byte[] buffer = new byte[ file.Length ];
+   file.Read( buffer, 0, buffer.Length );
+   document = <b>new Document( new BinaryReader( new MemoryStream( buffer ) ) )</b>;
+}
+]]></code>
+            </example>
+            <param name="reader"> The reader from which the document is read. </param>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Document.Resolution">
+            <summary> Resolution of this document. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Document.Title">
+            <summary> Title of this document. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+{
+   Document document = new Document(file);
+   Console.WriteLine("Title: " + document.Title);
+}
+]]></code>
+                <code lang="VB" title="[New Example] (Visual Basic)"><![CDATA[
+Dim file As FileStream = New FileStream(path, FileMode.Open, FileAccess.Read)
+Dim document As Document = New Document(file)
+Console.WriteLine("Title: " & document.Title)
+file.Close()
+]]></code>
+            </example>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Document.Subject">
+            <summary> Subject of this document. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+{
+   Document document = new Document(file);
+   Console.WriteLine("Subject: " + document.Subject);
+}
+]]></code>
+                <code lang="VB" title="[New Example] (Visual Basic)"><![CDATA[
+Dim file As FileStream = New FileStream(path, FileMode.Open, FileAccess.Read)
+Dim document As Document = New Document(file)
+Console.WriteLine("Subject: " & document.Subject)
+file.Close()
+]]></code>
+            </example>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Document.Producer">
+            <summary> The application that converted this document to PDF. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+{
+   Document document = new Document(file);
+   Console.WriteLine("Producer: " + document.Producer);
+}
+]]></code>
+                <code lang="VB" title="[New Example] (Visual Basic)"><![CDATA[
+Dim file As FileStream = New FileStream(path, FileMode.Open, FileAccess.Read)
+Dim document As Document = New Document(file)
+Console.WriteLine("Producer: " & document.Producer)
+file.Close()
+]]></code>
+            </example>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Document.Keywords">
+            <summary> Keywords of this document. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+{
+   Document document = new Document(file);
+   Console.WriteLine("Keywords: " + document.Keywords);
+}
+]]></code>
+                <code lang="VB" title="[New Example] (Visual Basic)"><![CDATA[
+Dim file As FileStream = New FileStream(path, FileMode.Open, FileAccess.Read)
+Dim document As Document = New Document(file)
+Console.WriteLine("Keywords: " & document.Keywords)
+file.Close()
+]]></code>
+            </example>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Document.Creator">
+            <summary> The application that created this document before it was converted to PDF. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+{
+   Document document = new Document(file);
+   Console.WriteLine("Creator: " + document.Creator);
+}
+]]></code>
+                <code lang="VB" title="Example 1 (VB) (Visual Basic)"><![CDATA[
+Dim file As FileStream = New FileStream(path, FileMode.Open, FileAccess.Read)
+Dim document As Document = New Document(file)
+Console.WriteLine("Author: " & document.Creator)
+file.Close()
+]]></code>
+            </example>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Document.Author">
+            <summary> The person who authored this document. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+{
+   Document document = new Document(file);
+   Console.WriteLine("Author: " + document.Author);
+}
+]]></code>
+                <code lang="VB" title="Example 1 (VB) (Visual Basic)"><![CDATA[
+Dim file As FileStream = New FileStream(path, FileMode.Open, FileAccess.Read)
+Dim document As Document = New Document(file)
+Console.WriteLine("Author: " & document.Author)
+file.Close()
+]]></code>
+            </example>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Document.Pages">
+            <summary> Collection of pages in this document. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+for (int i=0; i&lt;document.Pages.Count; i++)
+{
+   pagesListBox.Items.Add( "Page " + (i + 1)); 
+}
+]]></code>
+            </example>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.Document">
+            <summary> The <STRONG>Document</STRONG> class is the top-level class that represents an existing PDF document.
+</summary>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.PageCollection.#ctor(System.IO.Stream,System.String)">
+            <summary> Creates a PageCollection from a Stream containing a PDF and password </summary>
+            <param name="stream"> A stream that must be positioned to the beginning of a PDF </param>
+            <param name="password"> The password to use to open the PDF </param>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.PageCollection">
+            <summary> A collection of Page objects. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Pages.default(System.Int32)">
+            <summary> Retrieve a page by 0-based index. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+Page page = document.Pages[selectedPage];
+]]></code>
+                <code lang="VB" title="[New Example] (Visual Basic)"><![CDATA[
+Dim page As Page = document.Pages(selectedPage)
+]]></code>
+            </example>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Pages.PageCount">
+            <summary> Gets the number of pages. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+for ( int i=0; i&lt;document.Pages.Count; i++ )
+{
+   pagesListBox.Items.Add( "Page " + ( i + 1 ) ); 
+}
+]]></code>
+            </example>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.Pages">
+            <summary> Collection of pages inside a PDF document. Non-creatable. Obtained through the 
+<see cref="!:Document::Pages" /> property of the <see cref="T:Atalasoft.Imaging.Codec.Pdf.Document" /> class. </summary>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.Page.ExtractImages">
+            <summary> Extracts all images on this page. </summary>
+            <returns> Extracted images. Can be of zero length. </returns>
+            <example>
+                <code lang="CS"><![CDATA[
+using (FileStream file = new FileStream( 
+   string.Format(@"in.pdf", fileName), FileMode.Open, FileAccess.Read))
+{
+   Document document = new Document(new BinaryReader(file));
+   for (int pageIndex=0; pageIndex&lt;document.Pages.Count; pageIndex++)
+   {
+      Page page = document.Pages[pageIndex];
+      ExtractedImageInfo[] images = page.ExtractImages();
+      for (int imageIndex=0; null!=images &amp;&amp; imageIndex&lt;images.Length; imageIndex++)
+      {
+         images[imageIndex].Bitmap.Save( 
+            string.Format(@"..\..\out_{0}_{1}.bmp", pageIndex, imageIndex));
+      }
+   }
+}
+]]></code>
+                <code lang="VB" title="[New Example] (Visual Basic)"><![CDATA[
+Dim file As FileStream = New FileStream( _
+   String.Format("in.pdf", fileName), FileMode.Open, FileAccess.Read))
+Document document = New Document(New BinaryReader(file))
+For pageIndex As Integer = 0 To document.Pages.Count - 1
+      Dim page As Page = document.Pages(pageIndex)
+      Dim images() As ExtractedImageInfo = page.ExtractImages()
+      For imageIndex As Integer = 0 To images.Length)
+         images(imageIndex).Bitmap.Save( _
+            String.Format( "..\..\out_{0}_{1}.bmp", pageIndex, imageIndex))
+     Next
+Next
+file.Close()
+]]></code>
+            </example>
+            <remarks> This method will extract each image embedded in a specified page.  The method is more efficient for single
+image PDF pages as it does not resample the image to fit in the indicated resolution. </remarks>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.Page.Draw(System.Drawing.Graphics,Atalasoft.Imaging.Codec.Pdf.PageBoundary,Atalasoft.Imaging.Codec.Pdf.RenderSettings)">
+            <summary> Draws the page content. </summary>
+            <param name="graphics"> Graphics object to which content is drawn. </param>
+            <param name="pageBoundary"> The page boundary that is used to draw the PDF page. </param>
+            <param name="renderSettings"> Settings that control the render process. </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.Page.Draw(System.Drawing.Graphics,Atalasoft.Imaging.Codec.Pdf.PageBoundary)">
+            <summary> Draws the page content using default render settings. </summary>
+            <param name="graphics"> Graphics object to which content is drawn. </param>
+            <param name="pageBoundary"> The page boundary that is used to draw the PDF page. </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.Page.Draw(System.Drawing.Graphics,Atalasoft.Imaging.Codec.Pdf.RenderSettings)">
+            <summary> Draws the page content using default page boundary. </summary>
+            <param name="graphics"> Graphics object to which content is drawn. </param>
+            <param name="renderSettings"> Settings that control the render process. </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.Page.Draw(System.Drawing.Graphics)">
+            <overloads> Draws the page context onto a graphics object. </overloads>
+            <summary> Draws the page content using default page boundary and render settings. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+Page page = document.Pages[selectedPage];
+
+const float DPI = 300;
+bitmap = new Bitmap( 
+  (int) (page.Width / 72 * DPI), 
+  (int) (page.Height / 72 * DPI));
+Graphics graphics = Graphics.FromImage(bitmap);
+
+float scale = DPI / 72;
+graphics.ScaleTransform(scale, scale);
+       
+page.Draw(graphics);
+]]></code>
+                <code lang="VB" title="[New Example] (Visual Basic)"><![CDATA[
+Dim page As Page = document.Pages(selectedPage];
+
+Dim DPI As Double = 300
+bitmap = New Bitmap( _
+  (page.Width / 72 * DPI), _ 
+  (page.Height / 72 * DPI))
+Dim graphics As Graphics = Graphics.FromImage(bitmap)
+
+Dim scale As Double = DPI / 72
+graphics.ScaleTransform(scale, scale)
+       
+page.Draw(graphics)
+]]></code>
+            </example>
+            <param name="graphics"> Graphics object to which content is drawn. </param>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Page.SingleImageOnly">
+            <summary> Gets a value indicating if the content of this PDF page consists of a single image only. </summary>
+            <remarks> When this value is true, the <see cref="M:Atalasoft.Imaging.Codec.Pdf.Page.ExtractImages" /> method is more efficient than rendering the
+PDF as a Page. </remarks>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Page.Rotate">
+            <summary>
+                <para>Gets the counter-clockwise rotation in degrees that the viewer should apply to the page.</para>
+            </summary>
+            <remarks> If the page does not have an explicit viewer rotation set, 0 is returned. </remarks>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Page.TrimBox">
+            <summary>
+                <para>Gets the dimensions of the finished page after trimming.</para>
+            </summary>
+            <remarks> Defaults to the crop box. </remarks>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Page.MediaBox">
+            <summary> Gets the maximum imageable area of the physical medium. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Page.CropBox">
+            <summary> Gets the maximum imageable area of the physical medium on which the page is to be printed. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Page.BleedBox">
+            <summary> Gets the dimensions to which the page should be clipped in a production environment. </summary>
+            <remarks> Defaults to the crop box. </remarks>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Page.ArtBox">
+            <summary> Gets the the dimensions of the page's meaningful content intended by the page's creator. </summary>
+            <remarks> Default to the crop box. </remarks>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Page.Height">
+            <summary> Gets the viewer height of this page in points. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+Page page = document.Pages[selectedPage];
+
+const float DPI = 300;
+bitmap = new Bitmap( 
+  (int) ( page.Width / 72 * DPI ), 
+  (int) ( page.Height / 72 * DPI ) );
+Graphics graphics = Graphics.FromImage( bitmap );
+
+float scale = DPI / 72;
+graphics.ScaleTransform( scale, scale );
+       
+page.Draw( graphics );
+]]></code>
+            </example>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.Page.Width">
+            <summary> Gets the viewer width of this page in points. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+Page page = document.Pages[selectedPage];
+
+const float DPI = 300;
+bitmap = new Bitmap( 
+  (int) ( page.Width / 72 * DPI ), 
+  (int) ( page.Height / 72 * DPI ) );
+Graphics graphics = Graphics.FromImage( bitmap );
+
+float scale = DPI / 72;
+graphics.ScaleTransform( scale, scale );
+       
+page.Draw( graphics );
+]]></code>
+            </example>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.Page">
+            <summary> A page inside an existing PDF document.  Obtained through the <see cref="!:Pages::Item" /> property of the
+<see cref="T:Atalasoft.Imaging.Codec.Pdf.Pages" /> class. </summary>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.Summary">
+            <summary> Provides a summary of the rasterization process. This class is currently empty and has been added for
+future extension. </summary>
+            <remarks> An instance of this class is returned by the <see cref="!:Page::Draw" /> method. </remarks>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.RenderSettings.ColorSettings">
+            <summary>Gets a render process color settings.</summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.RenderSettings.FontSubstitutionMap">
+            <summary> Not used </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.RenderSettings.AnnotationSettings">
+            <summary> All settings related to annotation rendering. </summary>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.RenderSettings">
+            <summary> Encapsulates all settings that control the render process. </summary>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings">
+            <summary> Settings that control how annotations are rendered. </summary>
+            <remarks> These fields can be OR'ed together to combine more than one setting. </remarks>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderAll">
+            <summary> Render all annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderNone">
+            <summary> Render no annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderWidgetAnnotation">
+            <summary> Render Widget annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderWatermarkAnnotation">
+            <summary> Render Watermark annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderUnderlineAnnotation">
+            <summary> Render Underline annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderTrapNetAnnotation">
+            <summary> Render TrapNet annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderTextAnnotation">
+            <summary> Render Text annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderStrikeOutAnnotation">
+            <summary> Render StrikeOut annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderSquigglyUnderlineAnnotation">
+            <summary> Render SquigglyUnderline annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderSquareAnnotation">
+            <summary> Render Square annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderSoundAnnotation">
+            <summary> Render Sound annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderScreenAnnotation">
+            <summary> Render Screen annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderRubberStampAnnotation">
+            <summary> Render RubberStamp annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderPrinterMarkAnnotation">
+            <summary> Render PrinterMark annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderPopupAnnotation">
+            <summary> Render Popup annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderPolylineAnnotation">
+            <summary> Render Polyline annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderPolygonAnnotation">
+            <summary> Render Polygon annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderMovieAnnotation">
+            <summary> Render Movie annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderLinkAnnotation">
+            <summary> Render Link annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderLineAnnotation">
+            <summary> Render Line annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderInkAnnotation">
+            <summary> Render Ink annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderHighlightAnnotation">
+            <summary> Render Highlight annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderFreeTextAnnotation">
+            <summary> Render FreeText annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderFileAttachmentAnnotation">
+            <summary> Render FileAttachment annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderCircleAnnotation">
+            <summary> Render Circle annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.RenderCaretAnnotation">
+            <summary> Render Caret annotations. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.AnnotationRenderSettings.Render3DAnnotation">
+            <summary> Render 3D annotations. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.ColorRenderSettings.RenderMode">
+            <summary> This class is unused now, but may be used in a future version </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.ColorRenderSettings.BackColor">
+            <summary> Gets or sets a background color for PDF document.</summary>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.ColorRenderSettings.#ctor">
+            <summary> Initializes a new instance of the <STRONG>ColorRenderSettings</STRONG> class. </summary>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.ColorRenderSettings">
+            <summary> Represents a color render settings. For example, this class can be used to setup a background color for PDF document.</summary>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.ColorTransformationMode">
+            <summary> This class is unused now, but may be used in a future version </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.ColorTransformationMode.HighSpeed">
+            <summary> This class is unused now, but may be used in a future version </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.FontSubstitutionMap.SearchPathA">
+            <summary> Gets or sets a semi-colon separated list of folders to search for font files that are included in the
+substitution map. The folders are searched from left to right until the font file is found. </summary>
+            <remarks> The default value is ".;%FONTDIR%". This means that by default font files will be searched in the current
+folder first and then in the system font directory (typically c:\windows\fonts). </remarks>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.FontSubstitutionMap.FontNames">
+            <summary> Gets all the font names included in this map. </summary>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.FontSubstitutionMap.Clear">
+            <summary> Remove all entries. </summary>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.FontSubstitutionMap.Add(System.String,System.String)">
+            <summary> Add a new entry to the map. </summary>
+            <param name="fontName"> The name of the font to map. </param>
+            <param name="file">
+                <para>The file that holds the font program.</para>
+            </param>
+        </member>
+        <member name="M:Atalasoft.Imaging.Codec.Pdf.FontSubstitutionMap.Add(System.String,System.IO.Stream)">
+            <overloads> Add a new entry to the map. </overloads>
+            <summary> Add a new entry to the map. </summary>
+            <param name="fontName"> The name of the font to map. </param>
+            <param name="stream">
+                <DD>The stream that holds the font program.</DD>
+                <DD />
+            </param>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.FontSubstitutionMap">
+            <summary> Gets a value that lets you define which external fonts are used to render fonts that are not embedded.
+</summary>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.PageBoundary">
+            <summary> Different PDF page boundaries that each correspond to a specific imaging or finishing process. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.PageBoundary.TrimBox">
+            <summary> The dimensions of the finished page after trimming. Defaults to the crop box. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.PageBoundary.MediaBox">
+            <summary> The maximum imageable area of the physical medium on which the page is to be printed. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.PageBoundary.Default">
+            <summary> The dimensions of the intersection of the media box and the crop box. If the crop box is not present, the
+visible box is set to the media box. </summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.PageBoundary.CropBox">
+            <summary> The dimension to which the page should be clipped when displayed or printed. Defaults to the media box.
+</summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.PageBoundary.BleedBox">
+            <summary> The dimensions to which the page should be clipped in a production environment. Defaults to the crop box.
+</summary>
+        </member>
+        <member name="F:Atalasoft.Imaging.Codec.Pdf.PageBoundary.ArtBox">
+            <summary> The dimensions of the page's meaningful content as intended by the page's creator. Default to the crop
+box. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.ExtractedImageInfo.Transformation">
+            <remarks>
+                <para>This transformation assumes that the original coordinate system has its origin at the lower-left
+corner and a unit corresponds to a point (1/72 inch). It also assumes that the image is drawn at the origin of the
+transformed coordinate system as a unit rectangle.</para>
+            </remarks>
+            <summary> Gets the transformation required to draw the image at the right location. </summary>
+        </member>
+        <member name="P:Atalasoft.Imaging.Codec.Pdf.ExtractedImageInfo.Image">
+            <summary> Gets the extracted image. </summary>
+        </member>
+        <member name="T:Atalasoft.Imaging.Codec.Pdf.ExtractedImageInfo">
+            <example>
+                <code lang="CS"><![CDATA[
+using (FileStream file = new FileStream( 
+   string.Format(@"in.pdf", fileName), FileMode.Open, FileAccess.Read))
+{
+   Document document = new Document(file);
+   for (int pageIndex=0; pageIndex&lt;document.Pages.Count; pageIndex++)
+   {
+      Page page = document.Pages[pageIndex];
+      ExtractedImageInfo[] images = page.ExtractImages();
+      for (int imageIndex = 0; null!=images &amp;&amp; imageIndex&lt;images.Length; imageIndex++)
+      {
+         images[imageIndex].Image.Save( 
+            string.Format( @"..\..\out_{0}_{1}.bmp", pageIndex, imageIndex),
+            new BmpEncoder(), null);
+      }
+   }
+}
+]]></code>
+                <code lang="VB" title="[New Example] (Visual Basic)"><![CDATA[
+Dim file As FileStream = New FileStream( _
+   String.Format("in.pdf", fileName), FileMode.Open, FileAccess.Read))
+Dim document As Document = New Document(file)
+For pageIndex As Integer = 0 To document.Pages.Count - 1)
+      Dim page As Page = document.Pages(pageIndex)
+      Dim images() As ExtractedImageInfo = page.ExtractImages()
+      For imageIndex As Integer = 0 To images.Length - 1)
+         images(imageIndex).Bitmap.Save( _
+            String.Format( "..\..\out_{0}_{1}.bmp", pageIndex, imageIndex _
+            New BmpEncoder(), Nothing))
+      Next
+Next
+]]></code>
+            </example>
+            <summary> Represents a single occurrence of an image on a PDF page.  Encapsulates both the image and its location on
+the page. </summary>
+            <example>
+                <code lang="CS"><![CDATA[
+using (FileStream file = new FileStream( 
+   string.Format(@"in.pdf", fileName), FileMode.Open, FileAccess.Read))
+{
+   Document document = new Document(file);
+   for (int pageIndex=0; pageIndex&lt;document.Pages.Count; pageIndex++)
+   {
+      Page page = document.Pages[pageIndex];
+      ExtractedImageInfo[] images = page.ExtractImages();
+      for (int imageIndex = 0; null!=images &amp;&amp; imageIndex&lt;images.Length; imageIndex++)
+      {
+         images[imageIndex].Image.Save( 
+            string.Format( @"..\..\out_{0}_{1}.bmp", pageIndex, imageIndex),
+            new BmpEncoder(), null);
+      }
+   }
+}
+]]></code>
+                <code lang="VB" title="[New Example] (Visual Basic)"><![CDATA[
+Dim file As FileStream = New FileStream( _
+   String.Format("in.pdf", fileName), FileMode.Open, FileAccess.Read))
+Dim document As Document = New Document(file)
+For pageIndex As Integer = 0 To document.Pages.Count - 1)
+      Dim page As Page = document.Pages(pageIndex)
+      Dim images() As ExtractedImageInfo = page.ExtractImages()
+      For imageIndex As Integer = 0 To images.Length - 1)
+         images(imageIndex).Bitmap.Save( _
+            String.Format( "..\..\out_{0}_{1}.bmp", pageIndex, imageIndex _
+            New BmpEncoder(), Nothing))
+      Next
+Next
+]]></code>
+            </example>
+        </member>
+    </members>
+</doc>
